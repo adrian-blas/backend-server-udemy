@@ -1,7 +1,9 @@
 var express = require('express');
-
-// encriptador de password
 var bcrypt = require('bcrypt');
+var jwt = require('jsonwebtoken');
+
+var mdAutenticacion = require('../middlewares/autenticacion');
+// var SEED = require('../config/config').SEED;
 
 var app = express();
 
@@ -39,7 +41,7 @@ app.get('/', ( req, res, next ) => {
 // Actualizar un nuevo usuario
 // =================================
 //
-app.put('/:id', ( req, res ) =>{
+app.put('/:id', mdAutenticacion.verificaToken, ( req, res ) =>{
 
   var id = req.params.id;
   var body = req.body;
@@ -94,7 +96,7 @@ app.put('/:id', ( req, res ) =>{
 // =================================
 //
 // Crear el post
-app.post('/', ( req, res ) => {
+app.post('/', mdAutenticacion.verificaToken, ( req, res ) => {
 
   // leer el body
   var body = req.body;
@@ -124,7 +126,47 @@ app.post('/', ( req, res ) => {
     // si no hay error guardar el usuario
     res.status(201).json({
       ok: true,
-      usuario: usuarioGuardado
+      usuario: usuarioGuardado,
+      usuariotoken: req.usuario
+    });
+
+  });
+
+});
+
+// =================================
+// Borrar un usuario por el id
+// =================================
+//
+
+app.delete('/:id', mdAutenticacion.verificaToken, (req, res) => {
+
+  var id = req.params.id;
+
+  Usuario.findByIdAndRemove(id, ( err, usuarioBorrado) => {
+
+    // si hay error mandar status
+    if( err ){
+      return res.status(500).json({
+        ok: false,
+        mensaje: 'Error al borrar usuario',
+        errors: err
+      });
+    }
+
+    // no existe un usuario con ese id
+    if( !usuarioBorrado ){
+      return res.status(400).json({
+        ok: false,
+        mensaje: 'No existe un usuario con ese id',
+        errors: { message: 'No existe un usuario con ese id'}
+      });
+    }
+
+    // si no hay error guardar el usuario
+    res.status(200).json({
+      ok: true,
+      usuario: usuarioBorrado
     });
 
   });
