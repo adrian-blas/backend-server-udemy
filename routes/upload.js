@@ -1,8 +1,13 @@
 var express =require('express');
 
 var fileUpload = require('express-fileupload');
+var fs = require('fs');
 
 var app = express();
+
+var Hospital = require('../models/hospital');
+var Medico = require('../models/medico');
+var Usuario = require('../models/usuario');
 
 // default options
 app.use(fileUpload());
@@ -63,15 +68,141 @@ app.put('/:tipo/:id', ( req, res, next ) => {
       });
     }
 
-    res.status(200).json({
-      ok: true,
-      mensaje: 'Archivo movido',
-      extensionArchivo: extensionArchivo
-    });
+    subirPorTipo( tipo, id, nombreArchivo, res);
 
   });
 
-
 });
+
+function subirPorTipo( tipo, id, nombreArchivo, res){
+
+  if( tipo === 'usuarios'){
+
+    Usuario.findById( id, (err, usuario) => {
+
+      if( !usuario){
+
+        return res.status(400).json({
+          ok: true,
+          mensaje: 'Usuario no existe',
+          errors: { message: 'Usuario no existe'}
+        });
+
+      }
+
+      var pathViejo = './uploads/usuarios/' + usuario.img;
+
+      // Si existe elimina la imagen anterior
+      if( fs.existsSync(pathViejo) ){
+        fs.unlink( pathViejo, function(err) {
+          if(err){
+            return console.log(err);
+          }
+          console.log("File deleted successfully!");
+        });
+      }
+
+      usuario.img = nombreArchivo;
+
+      usuario.save( (err, usuarioActualizado) => {
+
+        usuarioActualizado.password = ':)';
+
+        return res.status(200).json({
+          ok: true,
+          mensaje: 'Imagen de usuario actualizada',
+          usuario: usuarioActualizado
+        });
+
+      });
+
+    });
+  }
+
+  if( tipo === 'medicos'){
+
+    Medico.findById( id, (err, medico) => {
+
+      if( !medico){
+
+        return res.status(400).json({
+          ok: true,
+          mensaje: 'Medico no existe',
+          errors: { message: 'medico no existe'}
+        });
+
+      }
+
+      var pathViejo = './uploads/medicos/' + medico.img;
+
+      // Si existe elimina la imagen anterior
+      if( fs.existsSync(pathViejo) ){
+        fs.unlink( pathViejo, function(err) {
+          if(err){
+            return console.log(err);
+          }
+          console.log("File deleted successfully!");
+        });
+      }
+
+      medico.img = nombreArchivo;
+
+      medico.save( (err, medicoActualizado) => {
+
+        return res.status(200).json({
+          ok: true,
+          mensaje: 'Imagen de medico actualizada',
+          medico: medicoActualizado
+        });
+
+      });
+
+    });
+
+  }
+
+  if( tipo === 'hospitales'){
+
+    Hospital.findById( id, (err, hospital) => {
+
+      if( !hospital){
+
+        return res.status(400).json({
+          ok: true,
+          mensaje: 'Hospital no existe',
+          errors: { message: 'hospital no existe'}
+        });
+
+      }
+
+      var pathViejo = './uploads/hospitales/' + hospital.img;
+
+      // Si existe elimina la imagen anterior
+      if( fs.existsSync(pathViejo) ){
+        fs.unlink( pathViejo, function(err) {
+          if(err){
+            return console.log(err);
+          }
+          console.log("File deleted successfully!");
+        });
+      }
+
+      hospital.img = nombreArchivo;
+
+      hospital.save( (err, hospitalActualizado) => {
+
+        return res.status(200).json({
+          ok: true,
+          mensaje: 'Imagen de hospital actualizada',
+          medico: hospitalActualizado
+        });
+
+      });
+
+    });
+
+  }
+
+}
 
 module.exports = app;
