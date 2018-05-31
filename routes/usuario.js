@@ -106,7 +106,10 @@ app.put('/:id', mdAutenticacion.verificaToken, ( req, res ) =>{
 // =================================
 //
 // Crear el post
-app.post('/', mdAutenticacion.verificaToken, ( req, res ) => {
+//
+// Para crear usuario mediante un token es de la siguiente manera
+// app.post('/', mdAutenticacion.verificaToken, ( req, res ) => {
+app.post('/', ( req, res ) => {
 
   // leer el body
   var body = req.body;
