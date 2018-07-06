@@ -8,10 +8,12 @@ var app = express();
 
 // CORS
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  res.header("Access-Control-Allow-Methods", "POST", "GET", "PUT", "DELETE", "OPTIONS");
-  next();
+
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+
+    next();
 });
 
 // Body parser
@@ -33,6 +35,7 @@ var medicoRoutes = require('./routes/medico');
 var busquedaRoutes = require('./routes/busqueda');
 var uploadRoutes = require('./routes/upload');
 var imagenesRoutes = require('./routes/imagenes');
+// var videosRoutes = require('./routes/videos');
 
 // conexion a la base de datos
 mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', ( err, res ) => {
@@ -51,6 +54,7 @@ app.use('/login', loginRoutes);
 app.use('/busqueda', busquedaRoutes);
 app.use('/upload', uploadRoutes);
 app.use('/img', imagenesRoutes);
+// app.use('/video', videosRoutes);
 
 // Esta siempre debe ser la ultima ruta
 app.use('/', appRoutes);
